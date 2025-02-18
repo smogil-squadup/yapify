@@ -581,34 +581,52 @@ export default function TextAnimator() {
   };
 
   return (
-    <div
-      className={`min-h-screen ${
-        settings.removeBackground ? "bg-transparent" : "bg-[#0047AB]"
-      } p-2 sm:p-4 md:p-8 space-y-4 sm:space-y-6 md:space-y-0 md:grid md:grid-cols-[1fr_1.5fr] md:gap-8`}
-    >
+    <div className="min-h-screen bg-[#C0C0C0] p-4 md:p-6 space-y-6 md:space-y-0 md:grid md:grid-cols-[1.2fr_2fr] md:gap-6">
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+        /* Windows 98-style scrollbar */
+        ::-webkit-scrollbar {
+          width: 16px;
+          height: 16px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #c0c0c0;
+          border: 1px solid #000;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #dfdfdf;
+          border: 1px solid #000;
+          box-shadow: inset 1px 1px #fff;
+        }
+        ::-webkit-scrollbar-button {
+          background: #dfdfdf;
+          border: 1px solid #000;
+          box-shadow: inset 1px 1px #fff;
+          width: 16px;
+          height: 16px;
+        }
       `}</style>
 
       {/* Left Column - Controls */}
-      <div className="space-y-4 sm:space-y-6">
-        <Card className="w-full bg-white/95 backdrop-blur border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <CardHeader className="border-b-2 border-black p-3 sm:p-4">
-            <CardTitle className="font-['Press_Start_2P'] text-lg sm:text-xl text-center tracking-tight">
+      <div className="space-y-4">
+        <Card className="w-full bg-[#dfdfdf] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-visible">
+          <CardHeader className="border-b-2 border-black p-3 bg-[#543894] text-white">
+            <CardTitle className="font-['Press_Start_2P'] text-lg text-center tracking-tight">
               Text Animator
             </CardTitle>
-            <CardDescription className="font-['Press_Start_2P'] text-[8px] sm:text-[10px] text-center text-black/70">
+            <CardDescription className="font-['Press_Start_2P'] text-[10px] text-center text-white/90">
               Create animated pixel text
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4">
-            <div className="flex gap-2 sm:gap-3">
+          <CardContent className="space-y-4 p-4">
+            <div className="flex gap-2">
               <div className="flex-1">
                 <Textarea
                   placeholder="ENTER YOUR TEXT..."
                   value={text}
                   onChange={handleTextChange}
-                  className="font-['Press_Start_2P'] text-base sm:text-lg p-2 sm:p-4 bg-white/90 min-h-[80px] sm:min-h-[100px] resize-none border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="font-['Press_Start_2P'] text-base p-3 bg-white min-h-[100px] resize-none border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-[#543894]"
                 />
               </div>
               <Sheet>
@@ -616,14 +634,14 @@ export default function TextAnimator() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="relative h-auto aspect-square bg-[#E60012] text-white border-[3px] border-black rounded-sm group overflow-hidden
-                      before:absolute before:inset-0 before:rounded-sm before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-0 before:hover:opacity-100 before:transition-opacity
-                      after:absolute after:inset-[3px] after:rounded-sm after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
-                      hover:-translate-y-0.5 active:translate-y-0.5 transition-all
-                      shadow-[0_6px_0_0_#000] hover:shadow-[0_5px_0_0_#000] active:shadow-[0_2px_0_0_#000]"
+                    className="relative h-auto aspect-square bg-[#dfdfdf] text-black border-[3px] border-black rounded-none group overflow-hidden
+                      hover:bg-[#efefef] active:bg-[#cfcfcf]
+                      before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent
+                      after:absolute after:inset-[3px] after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
+                      active:translate-y-[2px] transition-all"
                   >
-                    <span className="relative flex items-center justify-center group-hover:scale-[1.02] transition-transform">
-                      <Settings2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="relative flex items-center justify-center">
+                      <Settings2 className="w-5 h-5" />
                     </span>
                   </Button>
                 </SheetTrigger>
@@ -837,27 +855,29 @@ export default function TextAnimator() {
               </Sheet>
             </div>
 
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-3">
               <div className="flex flex-col space-y-2">
-                <Label className="font-['Press_Start_2P'] text-[10px] sm:text-xs">
+                <Label className="font-['Press_Start_2P'] text-xs text-black/80">
                   Background Image
                 </Label>
-                <div className="flex gap-2 sm:gap-3 flex-col sm:flex-row">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="font-['Press_Start_2P'] text-[10px] sm:text-xs bg-white/90 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
+                <div className="flex gap-2 flex-col sm:flex-row">
+                  <div className="relative flex-1">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="font-['Press_Start_2P'] text-xs bg-white border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-[#543894] rounded-none file:bg-[#dfdfdf] file:border-r-[3px] file:border-black file:font-['Press_Start_2P'] file:text-xs"
+                    />
+                  </div>
                   {backgroundImage && (
                     <Button
                       onClick={clearBackgroundImage}
                       variant="destructive"
-                      className="relative font-['Press_Start_2P'] text-[10px] sm:text-xs px-3 sm:px-4 h-auto bg-red-500 text-white border-[3px] border-black rounded-sm
-                        before:absolute before:inset-0 before:rounded-sm before:bg-gradient-to-b before:from-white/20 before:to-transparent
-                        after:absolute after:inset-[3px] after:rounded-sm after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
-                        hover:-translate-y-0.5 active:translate-y-0.5 transition-all
-                        shadow-[0_4px_0_0_#000] hover:shadow-[0_3px_0_0_#000] active:shadow-[0_2px_0_0_#000]"
+                      className="relative font-['Press_Start_2P'] text-xs px-4 h-auto bg-[#dfdfdf] text-black border-[3px] border-black rounded-none
+                        hover:bg-[#efefef] active:bg-[#cfcfcf]
+                        before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent
+                        after:absolute after:inset-[3px] after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
+                        active:translate-y-[2px] transition-all"
                     >
                       Clear Image
                     </Button>
@@ -866,49 +886,49 @@ export default function TextAnimator() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="grid grid-cols-3 gap-2 pt-2">
               <Button
                 onClick={() => setIsAnimating(true)}
-                className="relative font-['Press_Start_2P'] text-[10px] sm:text-xs px-3 sm:px-6 py-3 sm:py-4 h-auto bg-[#E60012] text-white border-[3px] border-black rounded-sm group overflow-hidden
-                  before:absolute before:inset-0 before:rounded-sm before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-0 before:hover:opacity-100 before:transition-opacity
-                  after:absolute after:inset-[3px] after:rounded-sm after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
-                  hover:-translate-y-0.5 active:translate-y-0.5 transition-all
-                  shadow-[0_6px_0_0_#000] hover:shadow-[0_5px_0_0_#000] active:shadow-[0_2px_0_0_#000]
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-[0_6px_0_0_#000]"
+                className="relative font-['Press_Start_2P'] text-xs px-4 py-3 h-auto bg-[#FF69B4] text-white border-[3px] border-black rounded-none group overflow-hidden
+                  hover:bg-[#FF8DC6] active:bg-[#E54D98]
+                  before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent
+                  after:absolute after:inset-[3px] after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
+                  active:translate-y-[2px] transition-all
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 disabled={isRecording}
               >
-                <span className="relative flex items-center justify-center gap-1 sm:gap-2 group-hover:scale-[1.02] transition-transform">
-                  <Play className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="relative flex items-center justify-center gap-2">
+                  <Play className="w-4 h-4" />
                   Preview
                 </span>
               </Button>
               <Button
                 onClick={captureAnimation}
-                className="relative font-['Press_Start_2P'] text-[10px] sm:text-xs px-3 sm:px-6 py-3 sm:py-4 h-auto bg-[#003791] text-white border-[3px] border-black rounded-sm group overflow-hidden
-                  before:absolute before:inset-0 before:rounded-sm before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-0 before:hover:opacity-100 before:transition-opacity
-                  after:absolute after:inset-[3px] after:rounded-sm after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
-                  hover:-translate-y-0.5 active:translate-y-0.5 transition-all
-                  shadow-[0_6px_0_0_#000] hover:shadow-[0_5px_0_0_#000] active:shadow-[0_2px_0_0_#000]
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-[0_6px_0_0_#000]"
+                className="relative font-['Press_Start_2P'] text-xs px-4 py-3 h-auto bg-[#543894] text-white border-[3px] border-black rounded-none group overflow-hidden
+                  hover:bg-[#6B48B8] active:bg-[#432C76]
+                  before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent
+                  after:absolute after:inset-[3px] after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
+                  active:translate-y-[2px] transition-all
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 disabled={isRecording}
               >
-                <span className="relative flex items-center justify-center gap-1 sm:gap-2 group-hover:scale-[1.02] transition-transform">
-                  <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="relative flex items-center justify-center gap-2">
+                  <Download className="w-4 h-4" />
                   Save GIF
                 </span>
               </Button>
               <Button
                 onClick={captureStillImage}
-                className="relative font-['Press_Start_2P'] text-[10px] sm:text-xs px-3 sm:px-6 py-3 sm:py-4 h-auto bg-[#003791] text-white border-[3px] border-black rounded-sm group overflow-hidden
-                  before:absolute before:inset-0 before:rounded-sm before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-0 before:hover:opacity-100 before:transition-opacity
-                  after:absolute after:inset-[3px] after:rounded-sm after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
-                  hover:-translate-y-0.5 active:translate-y-0.5 transition-all
-                  shadow-[0_6px_0_0_#000] hover:shadow-[0_5px_0_0_#000] active:shadow-[0_2px_0_0_#000]
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-[0_6px_0_0_#000]"
+                className="relative font-['Press_Start_2P'] text-xs px-4 py-3 h-auto bg-[#543894] text-white border-[3px] border-black rounded-none group overflow-hidden
+                  hover:bg-[#6B48B8] active:bg-[#432C76]
+                  before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent
+                  after:absolute after:inset-[3px] after:border-2 after:border-t-white/30 after:border-l-white/30 after:border-b-black/30 after:border-r-black/30
+                  active:translate-y-[2px] transition-all
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 disabled={isRecording}
               >
-                <span className="relative flex items-center justify-center gap-1 sm:gap-2 group-hover:scale-[1.02] transition-transform">
-                  <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="relative flex items-center justify-center gap-2">
+                  <Download className="w-4 h-4" />
                   Save PNG
                 </span>
               </Button>
@@ -919,11 +939,16 @@ export default function TextAnimator() {
 
       {/* Right Column - Preview */}
       <Card
-        className={`w-full h-full min-h-[300px] sm:min-h-[400px] overflow-hidden border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
-          settings.removeBackground ? "bg-[#f5f5f5]" : "bg-[#0047AB]"
+        className={`w-full h-full min-h-[400px] overflow-hidden border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
+          settings.removeBackground ? "bg-[#dfdfdf]" : "bg-[#543894]"
         }`}
       >
-        <CardContent className="p-4 sm:p-8 relative h-full">
+        <CardHeader className="border-b-2 border-black p-3 bg-[#543894] text-white">
+          <CardTitle className="font-['Press_Start_2P'] text-sm text-center">
+            Preview Window
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 relative h-[calc(100%-4rem)]">
           <div
             ref={animationRef}
             className="w-full h-full relative rounded-lg cursor-move"
@@ -937,7 +962,7 @@ export default function TextAnimator() {
                 : undefined,
               backgroundColor: settings.removeBackground
                 ? "#f5f5f5"
-                : "#0047AB",
+                : "#543894",
               aspectRatio: backgroundImage ? "auto" : "2/1",
               minHeight: "400px",
             }}
@@ -1031,8 +1056,8 @@ export default function TextAnimator() {
       </Card>
 
       {isRecording && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
-          <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-50">
+          <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-[#dfdfdf]">
             <CardContent className="p-6">
               <div className="flex items-center gap-3">
                 <div className="animate-spin w-5 h-5 border-2 border-black border-t-transparent rounded-full" />
