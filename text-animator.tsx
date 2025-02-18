@@ -76,6 +76,7 @@ interface AnimationSettings {
   textStroke: boolean;
   textPosition: { x: number; y: number };
   letterSpacing: number;
+  textAlign: "left" | "center" | "right";
 }
 
 interface AnimatedLetterProps {
@@ -100,6 +101,7 @@ export default function TextAnimator() {
     textStroke: true,
     textPosition: { x: 50, y: 50 }, // Center position (in percentage)
     letterSpacing: 0,
+    textAlign: "center",
   });
   const [showSettings, setShowSettings] = useState(false);
   const animationRef = useRef<HTMLDivElement>(null);
@@ -152,7 +154,7 @@ export default function TextAnimator() {
 
     try {
       const frames: string[] = [];
-      const frameCount = 30;
+      const frameCount = 12;
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
@@ -254,9 +256,9 @@ export default function TextAnimator() {
 
       // Generate frames
       const totalFrames = frameCount * settings.loops;
-      const baseChangeProb = 0.15;
+      const baseChangeProb = 0.08;
       const colorChangeProbability = baseChangeProb * settings.colorChangeSpeed;
-      const frameInterval = 1 / 15 / settings.colorChangeSpeed;
+      const frameInterval = 1 / 8 / settings.colorChangeSpeed;
 
       for (let f = 0; f < totalFrames; f++) {
         // Clear canvas with transparency
@@ -271,12 +273,24 @@ export default function TextAnimator() {
 
         // Set text properties
         ctx.font = `${relativeFontSize}px "Press Start 2P"`;
-        ctx.textAlign = "center";
+        ctx.textAlign = settings.textAlign;
         ctx.textBaseline = "middle";
 
         // Calculate text position
         const textX = settings.removeBackground
-          ? canvas.width / 2
+          ? settings.textAlign === "left"
+            ? totalPadding
+            : settings.textAlign === "right"
+            ? canvas.width - totalPadding
+            : canvas.width / 2
+          : settings.textAlign === "left"
+          ? (canvas.width * settings.textPosition.x) / 100 -
+            canvas.width / 2 +
+            totalPadding
+          : settings.textAlign === "right"
+          ? (canvas.width * settings.textPosition.x) / 100 +
+            canvas.width / 2 -
+            totalPadding
           : (canvas.width * settings.textPosition.x) / 100;
         const textY = settings.removeBackground
           ? canvas.height / 2
@@ -297,22 +311,36 @@ export default function TextAnimator() {
             const color = colorPalettes[settings.colorPalette][colorIndex];
             const charX =
               textX +
-              (charIndex - chars.length / 2) *
+              (charIndex -
+                (settings.textAlign === "center" ? chars.length / 2 : 0)) *
                 (relativeFontSize * (1.5 + settings.letterSpacing));
 
             ctx.save();
             ctx.translate(charX, y);
 
             if (settings.textStroke) {
-              // Draw shadows first
-              ctx.fillStyle = "rgba(0,0,0,0.5)";
-              ctx.fillText(char === " " ? "\u00A0" : char, 0, 5); // Bottom shadow
-              ctx.fillStyle = "#000";
-              ctx.fillText(char === " " ? "\u00A0" : char, 2, 2); // Top-right shadow
-              ctx.fillText(char === " " ? "\u00A0" : char, -2, 2); // Top-left shadow
-              ctx.fillText(char === " " ? "\u00A0" : char, 2, -2); // Bottom-right shadow
-              ctx.fillText(char === " " ? "\u00A0" : char, -2, -2); // Bottom-left shadow
-              ctx.fillText(char === " " ? "\u00A0" : char, 0, 4); // Extra bottom shadow
+              // Calculate shadow scale based on font size
+              const shadowScale = relativeFontSize * 0.05;
+
+              // Draw drop shadow first
+              ctx.fillStyle = "rgba(0,0,0,0.3)";
+              ctx.fillText(char === " " ? "\u00A0" : char, 0, shadowScale * 3);
+
+              // Draw multiple shadows for depth
+              ctx.fillStyle = "rgba(0,0,0,0.4)";
+              [
+                [1, 1],
+                [-1, 1],
+                [1, -1],
+                [-1, -1],
+                [0, 2],
+              ].forEach(([offsetX, offsetY]) => {
+                ctx.fillText(
+                  char === " " ? "\u00A0" : char,
+                  offsetX * shadowScale,
+                  offsetY * shadowScale
+                );
+              });
 
               // Draw stroke
               ctx.strokeStyle = "black";
@@ -345,7 +373,7 @@ export default function TextAnimator() {
             interval: frameInterval,
             numWorkers: 4,
             frameDuration: 1,
-            sampleInterval: 10,
+            sampleInterval: 20,
             transparent: settings.removeBackground ? "FFFFFF" : null,
           },
           (obj: GifResponse) => {
@@ -457,12 +485,24 @@ export default function TextAnimator() {
 
       // Reconfigure font after canvas resize
       ctx.font = `${relativeFontSize}px "Press Start 2P"`;
-      ctx.textAlign = "center";
+      ctx.textAlign = settings.textAlign;
       ctx.textBaseline = "middle";
 
       // Calculate text position
       const textX = settings.removeBackground
-        ? canvas.width / 2
+        ? settings.textAlign === "left"
+          ? totalPadding
+          : settings.textAlign === "right"
+          ? canvas.width - totalPadding
+          : canvas.width / 2
+        : settings.textAlign === "left"
+        ? (canvas.width * settings.textPosition.x) / 100 -
+          canvas.width / 2 +
+          totalPadding
+        : settings.textAlign === "right"
+        ? (canvas.width * settings.textPosition.x) / 100 +
+          canvas.width / 2 -
+          totalPadding
         : (canvas.width * settings.textPosition.x) / 100;
       const textY = settings.removeBackground
         ? canvas.height / 2
@@ -473,25 +513,52 @@ export default function TextAnimator() {
         const chars = line.split("");
         const y = textY + (lineIndex - lines.length / 2) * lineHeight;
 
+        // Calculate the total characters before this line
+        const previousLinesLength = text
+          .split("\n")
+          .slice(0, lineIndex)
+          .reduce((sum, line) => sum + line.length, 0);
+
         chars.forEach((char, charIndex) => {
           const colorIndex =
-            charIndex % colorPalettes[settings.colorPalette].length;
+            (previousLinesLength + charIndex) %
+            colorPalettes[settings.colorPalette].length;
           const color = colorPalettes[settings.colorPalette][colorIndex];
           const charX =
-            textX + (charIndex - chars.length / 2) * letterSpacingPx;
+            textX +
+            (charIndex -
+              (settings.textAlign === "center" ? chars.length / 2 : 0)) *
+              letterSpacingPx;
 
           if (settings.textStroke) {
-            // Draw shadows first
-            ctx.fillStyle = "rgba(0,0,0,0.5)";
-            ctx.fillText(char === " " ? "\u00A0" : char, charX, y + 5); // Bottom shadow
-            ctx.fillStyle = "#000";
-            ctx.fillText(char === " " ? "\u00A0" : char, charX + 2, y + 2); // Top-right shadow
-            ctx.fillText(char === " " ? "\u00A0" : char, charX - 2, y + 2); // Top-left shadow
-            ctx.fillText(char === " " ? "\u00A0" : char, charX + 2, y - 2); // Bottom-right shadow
-            ctx.fillText(char === " " ? "\u00A0" : char, charX - 2, y - 2); // Bottom-left shadow
-            ctx.fillText(char === " " ? "\u00A0" : char, charX, y + 4); // Extra bottom shadow
+            // Calculate shadow scale based on font size (reduced from 0.1 to 0.05)
+            const shadowScale = relativeFontSize * 0.05;
 
-            // Draw stroke
+            // Draw drop shadow first (reduced from 5 to 3)
+            ctx.fillStyle = "rgba(0,0,0,0.3)"; // Reduced opacity from 0.5 to 0.3
+            ctx.fillText(
+              char === " " ? "\u00A0" : char,
+              charX,
+              y + shadowScale * 3
+            ); // Bottom shadow
+
+            // Draw multiple shadows for depth (reduced offsets)
+            ctx.fillStyle = "rgba(0,0,0,0.4)"; // Slightly more opaque for definition
+            [
+              [1, 1], // Top-right shadow (reduced from 2 to 1)
+              [-1, 1], // Top-left shadow
+              [1, -1], // Bottom-right shadow
+              [-1, -1], // Bottom-left shadow
+              [0, 2], // Extra bottom shadow (reduced from 4 to 2)
+            ].forEach(([offsetX, offsetY]) => {
+              ctx.fillText(
+                char === " " ? "\u00A0" : char,
+                charX + offsetX * shadowScale,
+                y + offsetY * shadowScale
+              );
+            });
+
+            // Draw stroke with scaled width
             ctx.strokeStyle = "black";
             ctx.lineWidth = relativeFontSize * 0.15;
             ctx.strokeText(char === " " ? "\u00A0" : char, charX, y);
@@ -744,6 +811,27 @@ export default function TextAnimator() {
                         />
                       </div>
                     </div>
+
+                    <div className="space-y-4">
+                      <Label className="font-['Press_Start_2P'] text-xs">
+                        Text Alignment
+                      </Label>
+                      <Select
+                        value={settings.textAlign}
+                        onValueChange={(value: "left" | "center" | "right") =>
+                          setSettings({ ...settings, textAlign: value })
+                        }
+                      >
+                        <SelectTrigger className="font-['Press_Start_2P'] text-xs py-6">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="left">Left</SelectItem>
+                          <SelectItem value="center">Center</SelectItem>
+                          <SelectItem value="right">Right</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -870,7 +958,13 @@ export default function TextAnimator() {
                   {text.split("\n").map((line, lineIndex) => (
                     <motion.div
                       key={`line-${lineIndex}`}
-                      className="flex flex-wrap justify-center gap-2"
+                      className={`flex flex-wrap gap-2 w-full ${
+                        settings.textAlign === "left"
+                          ? "justify-start"
+                          : settings.textAlign === "right"
+                          ? "justify-end"
+                          : "justify-center"
+                      }`}
                     >
                       {line.split("").map((char, charIndex) => (
                         <AnimatedLetter
@@ -894,21 +988,35 @@ export default function TextAnimator() {
                   transform: "translate(-50%, -50%)",
                 }}
               >
-                {text.split("\n").map((line, lineIndex) => (
-                  <div
-                    key={`preview-${lineIndex}`}
-                    className="flex flex-wrap justify-center gap-2"
-                  >
-                    {line.split("").map((char, charIndex) => (
-                      <AnimatedLetter
-                        key={`preview-${char}-${lineIndex}-${charIndex}`}
-                        char={char}
-                        index={charIndex + lineIndex * line.length}
-                        settings={settings}
-                      />
-                    ))}
-                  </div>
-                ))}
+                {text.split("\n").map((line, lineIndex) => {
+                  // Calculate the total characters before this line
+                  const previousLinesLength = text
+                    .split("\n")
+                    .slice(0, lineIndex)
+                    .reduce((sum, line) => sum + line.length, 0);
+
+                  return (
+                    <div
+                      key={`preview-${lineIndex}`}
+                      className={`flex flex-wrap gap-2 w-full ${
+                        settings.textAlign === "left"
+                          ? "justify-start"
+                          : settings.textAlign === "right"
+                          ? "justify-end"
+                          : "justify-center"
+                      }`}
+                    >
+                      {line.split("").map((char, charIndex) => (
+                        <AnimatedLetter
+                          key={`preview-${char}-${lineIndex}-${charIndex}`}
+                          char={char}
+                          index={previousLinesLength + charIndex}
+                          settings={settings}
+                        />
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
